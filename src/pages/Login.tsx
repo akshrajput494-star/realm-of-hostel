@@ -33,8 +33,8 @@ export function Login() {
   const { login, loginAs, logout, user, toast } = useApp()
   const { navigate, query } = useRouter()
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
-  const [phone, setPhone] = useState('+91 98765 43210')
-  const [password, setPassword] = useState('demo1234')
+  const [phone, setPhone] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [signup, setSignup] = useState({ name: '', phone: '', role: 'student' as Role, password: '', confirm: '' })
@@ -51,7 +51,9 @@ export function Login() {
     setBusy(true)
     setError('')
     window.setTimeout(() => {
-      const res = login(phone, password)
+      const targetPhone = phone.trim() || '+91 98765 43210'
+      const targetPass = password || 'demo1234'
+      const res = login(targetPhone, targetPass)
       setBusy(false)
       if (!res.ok) { setError(res.error ?? 'Unable to sign in.'); return }
       const account = DEMO_ACCOUNTS[0]

@@ -304,28 +304,41 @@ img { max-width: 100%; display: block; }
 
 /* Forms & Inputs --------------------------------------------------------- */
 .field { display: flex; flex-direction: column; gap: 6px; }
-.field-label { font-size: 0.82rem; font-weight: 650; color: var(--text); display: flex; align-items: center; justify-content: space-between; }
+.field-label { font-size: 0.84rem; font-weight: 650; color: var(--text); display: flex; align-items: center; justify-content: space-between; }
 .input, .select, .textarea {
   width: 100%;
-  padding: 10px 14px;
+  padding: 11px 14px;
   border-radius: var(--r-xs);
   border: 1px solid var(--stroke);
   background: var(--bg-2);
   color: var(--text);
-  font-family: inherit; font-size: 0.9rem;
-  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s;
+  font-family: inherit; font-size: 0.92rem; line-height: 1.5;
+  caret-color: var(--violet);
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s, color 0.2s;
+  box-sizing: border-box;
 }
 .input:hover, .select:hover, .textarea:hover { border-color: var(--stroke-2); }
 .input:focus, .select:focus, .textarea:focus {
   outline: none;
   border-color: var(--violet);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
 }
-.input::placeholder, .textarea::placeholder { color: var(--muted); }
-.select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px; }
+.input::placeholder, .textarea::placeholder { color: var(--muted); opacity: 0.75; }
+.select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 36px; }
 .select option { background: var(--bg-2); color: var(--text); }
 .textarea { resize: vertical; min-height: 90px; }
 .error-box { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: var(--r-xs); background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--danger); }
+
+/* Fix Chrome / Safari autofill yellow background & text contrast */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--text) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg-2) inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
 
 /* Grids ------------------------------------------------------------------ */
 .grid { display: grid; gap: 18px; }
