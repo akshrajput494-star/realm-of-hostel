@@ -112,7 +112,33 @@ export function Home() {
           </div>
 
           <div className="anim-in" style={{ animationDelay: '0.15s' }}>
-            <IsoBuilding floors={4} beds={stats.totalBeds} occupancy={stats.occupancyPct} blocks={stats.totalBuildings} />
+            <div className="card pad-lg glowing" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div className="row-between">
+                <span className="chip-tag cyan"><Icon name="shield" size={13} /> Verified Estate</span>
+                <span className="small muted">Live System Status</span>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                <div style={{ background: 'var(--bg-3)', padding: '14px 16px', borderRadius: 'var(--r-sm)' }}>
+                  <div className="small muted">Total Hostels</div>
+                  <b style={{ fontSize: '1.4rem', color: 'var(--text)' }}>2 Hostels</b>
+                  <div className="tiny muted">3 Blocks · {stats.totalRooms} Rooms</div>
+                </div>
+                <div style={{ background: 'var(--bg-3)', padding: '14px 16px', borderRadius: 'var(--r-sm)' }}>
+                  <div className="small muted">Bed Capacity</div>
+                  <b style={{ fontSize: '1.4rem', color: 'var(--violet)' }}>{stats.totalBeds} Beds</b>
+                  <div className="tiny muted">{stats.available} Available Now</div>
+                </div>
+              </div>
+              <div style={{ background: 'var(--bg-3)', padding: '14px 16px', borderRadius: 'var(--r-sm)' }}>
+                <div className="row-between small">
+                  <span className="muted">Live Occupancy Rate</span>
+                  <b>{stats.occupancyPct}%</b>
+                </div>
+                <div style={{ height: 8, width: '100%', background: 'var(--bg-2)', borderRadius: 999, overflow: 'hidden', marginTop: 8 }}>
+                  <div style={{ height: '100%', width: `${stats.occupancyPct}%`, background: 'var(--grad)', borderRadius: 999 }} />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
