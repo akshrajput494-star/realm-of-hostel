@@ -23,7 +23,7 @@ const isActive = (path: string, item: NavItem) => item.match.some((m) => (m === 
 
 export function Nav() {
   const { path } = useRouter()
-  const { user, logout, confirm } = useApp()
+  const { user, theme, toggleTheme, logout, confirm } = useApp()
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
 
@@ -80,6 +80,16 @@ export function Nav() {
           </nav>
 
           <div className="row" style={{ gap: 8 }}>
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm btn-icon"
+              onClick={toggleTheme}
+              title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              aria-label={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+              style={{ minWidth: 36, height: 36, padding: 0 }}
+            >
+              <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={17} />
+            </button>
             {user ? (
               <>
                 <Link to={dash} className={`btn btn-ghost btn-sm ${path === dash ? 'active' : ''}`} style={{ textDecoration: 'none' }}>

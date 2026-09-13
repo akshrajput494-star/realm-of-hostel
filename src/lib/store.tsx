@@ -62,6 +62,8 @@ interface StoreValue {
   addNotice: (n: Omit<Notice, 'id'>) => void
   removeNotice: (id: string) => void
   /* ui */
+  theme: 'dark' | 'light'
+  toggleTheme: () => void
   toasts: Toast[]
   toast: (kind: ToastKind, title: string, message?: string) => void
   dismissToast: (id: number) => void
@@ -82,6 +84,7 @@ export function useApp() {
 /* ---------- persistence helpers (front-end only demo store) ------------- */
 const KEYS = {
   user: 'roh.v1.user',
+  theme: 'roh.v1.theme',
   shortlist: 'roh.v1.shortlist',
   compare: 'roh.v1.compare',
   applications: 'roh.v1.applications',
@@ -109,6 +112,7 @@ let toastSeq = 1
 let appSeq = 100
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => load<'dark' | 'light'>(KEYS.theme, 'dark'))
   const [user, setUser] = useState<AuthUser | null>(() => load<AuthUser | null>(KEYS.user, null))
   const [shortlist, setShortlist] = useState<string[]>(() => load<string[]>(KEYS.shortlist, ['ARV-103', 'NLG-201']))
   const [compare, setCompare] = useState<string[]>(() => load<string[]>(KEYS.compare, []))
@@ -121,6 +125,15 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [notices, setNotices] = useState<Notice[]>(() => load<Notice[]>(KEYS.notices, SEED_NOTICES))
   const [toasts, setToasts] = useState<Toast[]>([])
   const [confirmState, setConfirmState] = useState<ConfirmRequest | null>(null)
+
+  useEffect(() => {
+    save(KEYS.theme, theme)
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
+
+  const toggleTheme = useCallback(() => {
+    setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
+  }, [])
 
   useEffect(() => save(KEYS.user, user), [user])
   useEffect(() => save(KEYS.shortlist, shortlist), [shortlist])
@@ -287,6 +300,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<StoreValue>(() => ({
     user, login, loginAs, logout,
+    theme, toggleTheme,
     shortlist, toggleShortlist, isShortlisted: (id) => shortlist.includes(id),
     compare, toggleCompare, clearCompare,
     applications, applyForRoom, decideApplication,
@@ -297,7 +311,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     confirm, confirmState, resolveConfirm,
     resetDemoData,
   }), [
-    user, login, loginAs, logout, shortlist, toggleShortlist, compare, toggleCompare, clearCompare,
+    user, login, loginAs, logout, theme, toggleTheme, shortlist, toggleShortlist, compare, toggleCompare, clearCompare,
     applications, applyForRoom, decideApplication, complaints, submitComplaint, setComplaintStatus,
     payments, payNow, notices, addNotice, removeNotice, toasts, toast, dismissToast,
     confirm, confirmState, resolveConfirm, resetDemoData,

@@ -138,46 +138,7 @@ export function Admin() {
         </div>
       </div>
 
-      <div className="grid g3" style={{ marginBottom: 26 }}>
-        <div className="card pad-lg">
-          <div className="card-title" style={{ marginBottom: 16 }}><Icon name="clipboard" size={17} /> Complaints by category</div>
-          {byCategory.length ? (
-            <BarChart data={byCategory.map((c) => ({ ...c, color: 'url(#barGrad)' }))} height={170} />
-          ) : (
-            <span className="small muted">No complaints logged.</span>
-          )}
-          <div className="chart-legend">
-            {byCategory.map((c) => (
-              <span key={c.label}><i style={{ background: 'var(--violet)' }} />{c.label} · <b>{c.value}</b></span>
-            ))}
-          </div>
-        </div>
 
-        <div className="card pad-lg">
-          <div className="card-title" style={{ marginBottom: 16 }}><Icon name="wallet" size={17} /> Fee collection trend</div>
-          <LineChart points={feeTrend} color="#34d399" suffix="%" />
-          <div className="divider" />
-          <div className="row-between small"><span className="muted">Collected this semester</span><b>{rupee(feeCollected)}</b></div>
-          <div className="row-between small" style={{ marginTop: 8 }}>
-            <span className="muted">Pending across residents</span>
-            <b style={{ color: 'var(--danger)' }}>{rupee(feePending)}</b>
-          </div>
-        </div>
-
-        <div className="card pad-lg">
-          <div className="card-title" style={{ marginBottom: 16 }}><Icon name="calendar" size={17} /> Daily attendance</div>
-          <LineChart points={attendance} color="#22d3ee" />
-          <div className="divider" />
-          <div className="row" style={{ gap: 18, flexWrap: 'wrap' }}>
-            <ProgressRing pct={91} size={84} label="avg" />
-            <div className="grow">
-              <div className="row-between small"><span className="muted">Present today</span><b>188 / 204</b></div>
-              <div className="row-between small" style={{ marginTop: 8 }}><span className="muted">Night check-ins</span><b>184</b></div>
-              <div className="row-between small" style={{ marginTop: 8 }}><span className="muted">Visitors logged</span><b>26</b></div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* --------------------------- Management --------------------------- */}
       <div className="card pad-lg">
