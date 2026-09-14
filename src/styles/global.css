@@ -8,23 +8,23 @@
   --bg-2: #121215;
   --bg-3: #1c1c21;
 
-  --violet: #6366f1;
-  --violet-2: #818cf8;
-  --blue: #3b82f6;
-  --blue-2: #60a5fa;
+  --violet: #818cf8;
+  --violet-2: #a5b4fc;
+  --blue: #60a5fa;
+  --blue-2: #93c5fd;
   --cyan: #38bdf8;
-  --pink: #ec4899;
+  --pink: #f472b6;
 
-  --text: #f4f4f5;
-  --text-2: #a1a1aa;
-  --muted: #71717a;
-  --muted-2: #52525b;
+  --text: #ffffff;
+  --text-2: #e4e4e7;
+  --muted: #a1a1aa;
+  --muted-2: #71717a;
 
-  --ok: #10b981;
-  --warn: #f59e0b;
-  --danger: #ef4444;
-  --info: #0284c7;
-  --grey: #71717a;
+  --ok: #34d399;
+  --warn: #fbbf24;
+  --danger: #f87171;
+  --info: #38bdf8;
+  --grey: #a1a1aa;
 
   --glass: #121215;
   --glass-2: #1c1c21;
@@ -114,10 +114,11 @@ h1 { font-size: clamp(2.1rem, 5.2vw, 3.5rem); letter-spacing: -0.035em; }
 h2 { font-size: clamp(1.5rem, 3.2vw, 2.15rem); }
 h3 { font-size: 1.12rem; }
 h4 { font-size: 1rem; }
+b, strong { color: var(--text); }
 p { margin: 0 0 0.85rem; color: var(--text-2); }
 a { color: var(--blue-2); text-decoration: none; }
 a:hover { color: var(--cyan); }
-button { font: inherit; }
+button { font: inherit; color: var(--text); }
 img { max-width: 100%; display: block; }
 :focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 8px; }
 
@@ -163,6 +164,7 @@ img { max-width: 100%; display: block; }
   border: 1px solid var(--stroke);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-2);
+  color: var(--text);
   transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
 .card {
@@ -171,6 +173,7 @@ img { max-width: 100%; display: block; }
   border-radius: var(--r-lg);
   padding: 20px;
   box-shadow: var(--shadow-2);
+  color: var(--text);
   transition: transform 0.3s var(--ease), border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
 }
 .card.hoverable:hover {
