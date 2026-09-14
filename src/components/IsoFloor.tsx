@@ -71,7 +71,6 @@ function Volume({ x, y, w, h, base, elev, top, left, right, stroke, project }: B
       {c.map((_, i) => {
         const j = (i + 1) % 4
         const face = [basePts[i], basePts[j], topPts[j], topPts[i]]
-        // Faces that point away from the camera are hidden behind the top plate.
         const shade = i === 0 || i === 3 ? left : right
         return <polygon key={i} points={toPath(face, project)} fill={shade} stroke={stroke} strokeWidth="0.6" />
       })}
@@ -80,12 +79,23 @@ function Volume({ x, y, w, h, base, elev, top, left, right, stroke, project }: B
   )
 }
 
+function BedVolume({ x, y, w, h, base, status, project }: { x: number; y: number; w: number; h: number; base: number; status: string; project: (x: number, y: number, z: number) => Projected }) {
+  const fill = STATUS_FILL[status] ?? STATUS_FILL.available
+  return (
+    <Volume
+      x={x} y={y} w={w} h={h} base={base} elev={5}
+      top={fill.dot} left={fill.left} right={fill.right}
+      stroke={fill.stroke} project={project}
+    />
+  )
+}
+
 const STATUS_FILL: Record<string, { top: string; left: string; right: string; stroke: string; dot: string }> = {
-  available: { top: 'rgba(52,211,153,0.20)', left: 'rgba(16,120,90,0.55)', right: 'rgba(24,160,116,0.45)', stroke: 'rgba(52,211,153,0.75)', dot: '#34d399' },
-  partial: { top: 'rgba(251,191,36,0.18)', left: 'rgba(150,105,10,0.55)', right: 'rgba(190,140,20,0.45)', stroke: 'rgba(251,191,36,0.75)', dot: '#fbbf24' },
-  full: { top: 'rgba(251,113,133,0.17)', left: 'rgba(150,45,62,0.55)', right: 'rgba(190,66,88,0.45)', stroke: 'rgba(251,113,133,0.75)', dot: '#fb7185' },
-  reserved: { top: 'rgba(56,189,248,0.18)', left: 'rgba(20,90,140,0.55)', right: 'rgba(30,120,180,0.45)', stroke: 'rgba(56,189,248,0.75)', dot: '#38bdf8' },
-  maintenance: { top: 'rgba(148,163,184,0.15)', left: 'rgba(70,85,105,0.55)', right: 'rgba(95,112,135,0.45)', stroke: 'rgba(148,163,184,0.6)', dot: '#94a3b8' },
+  available: { top: 'rgba(52,211,153,0.22)', left: 'rgba(16,120,90,0.65)', right: 'rgba(24,160,116,0.55)', stroke: 'rgba(52,211,153,0.85)', dot: '#34d399' },
+  partial: { top: 'rgba(251,191,36,0.20)', left: 'rgba(150,105,10,0.65)', right: 'rgba(190,140,20,0.55)', stroke: 'rgba(251,191,36,0.85)', dot: '#fbbf24' },
+  full: { top: 'rgba(251,113,133,0.19)', left: 'rgba(150,45,62,0.65)', right: 'rgba(190,66,88,0.55)', stroke: 'rgba(251,113,133,0.85)', dot: '#fb7185' },
+  reserved: { top: 'rgba(56,189,248,0.20)', left: 'rgba(20,90,140,0.65)', right: 'rgba(30,120,180,0.55)', stroke: 'rgba(56,189,248,0.85)', dot: '#38bdf8' },
+  maintenance: { top: 'rgba(148,163,184,0.18)', left: 'rgba(70,85,105,0.65)', right: 'rgba(95,112,135,0.55)', stroke: 'rgba(148,163,184,0.7)', dot: '#94a3b8' },
 }
 
 export interface IsoPlanProps {
@@ -96,13 +106,14 @@ export interface IsoPlanProps {
   yaw: number
   zoom: number
   hoveredId?: string | null
+  filterStatus?: string | null
   shortlist: string[]
   onRoomHover: (room: Room | null) => void
   onRoomOpen: (room: Room) => void
 }
 
 export function IsoPlan({
-  rooms, floor, buildingCode, pitch, yaw, zoom, hoveredId, shortlist, onRoomHover, onRoomOpen,
+  rooms, floor, buildingCode, pitch, yaw, zoom, hoveredId, filterStatus, shortlist, onRoomHover, onRoomOpen,
 }: IsoPlanProps) {
   const project = useMemo(() => makeProjector(pitch, yaw, zoom), [pitch, yaw, zoom])
 
@@ -116,8 +127,8 @@ export function IsoPlan({
   left.forEach((room, i) => roomSlots.push({ room, x: leftX, y: PAD + i * (ROOM_H + ROOM_GAP), w: WING_W, h: ROOM_H }))
   right.forEach((room, i) => roomSlots.push({ room, x: rightX, y: PAD + i * (ROOM_H + ROOM_GAP), w: WING_W, h: ROOM_H }))
 
-  const utilY1 = PAD + 2 * ROOM_H + ROOM_GAP + 12          // 252
-  const utilY2 = utilY1 + 68                                 // 320
+  const utilY1 = PAD + 2 * ROOM_H + ROOM_GAP + 12
+  const utilY2 = utilY1 + 68
   const utilities = [
     { label: 'Washroom', x: leftX, y: utilY1, w: WING_W, h: 56 },
     { label: 'Stairs & Lift', x: rightX, y: utilY1, w: WING_W, h: 56 },
@@ -126,7 +137,6 @@ export function IsoPlan({
   ]
   const rightFree = right.length === 0
 
-  /* --- viewBox: derived from the volume's 8 corners so rotation never clips --- */
   const topZ = ROOM_ELEV + 4
   const bbox = (() => {
     let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
@@ -159,46 +169,46 @@ export function IsoPlan({
     >
       <defs>
         <linearGradient id="plateTop" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#2b3a7a" />
-          <stop offset="100%" stopColor="#131c4a" />
+          <stop offset="0%" stopColor="#243063" />
+          <stop offset="100%" stopColor="#10173b" />
         </linearGradient>
         <linearGradient id="plateLeft" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#101838" />
-          <stop offset="100%" stopColor="#080d24" />
+          <stop offset="0%" stopColor="#0d1430" />
+          <stop offset="100%" stopColor="#06091c" />
         </linearGradient>
         <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="3.4" result="b" />
+          <feGaussianBlur stdDeviation="4" result="b" />
           <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
         </filter>
       </defs>
 
-      {/* ---------- floor plate + skirt ---------- */}
+      {/* ---------- floor plate + shadow ---------- */}
       <Volume
         x={0} y={0} w={PLAN_W} h={PLAN_D} base={-PLATE} elev={PLATE}
-        top="url(#plateTop)" left="url(#plateLeft)" right="#0b1230"
-        stroke="rgba(147,168,255,0.28)" project={project}
+        top="url(#plateTop)" left="url(#plateLeft)" right="#0a0f28"
+        stroke="rgba(147,168,255,0.32)" project={project}
       />
 
       {/* ---------- corridor ---------- */}
       <polygon
         points={toPath(corners(PAD + WING_W + 8, PAD, CORRIDOR - 16, PLAN_D - PAD * 2), project)}
-        fill="rgba(147,168,255,0.05)"
-        stroke="rgba(147,168,255,0.3)"
+        fill="rgba(147,168,255,0.06)"
+        stroke="rgba(147,168,255,0.35)"
         strokeWidth="1"
         strokeDasharray="7 6"
       />
       <text
         x={project(PAD + WING_W + CORRIDOR / 2, PLAN_D / 2, 2).x}
         y={project(PAD + WING_W + CORRIDOR / 2, PLAN_D / 2, 2).y}
-        fill="rgba(147,168,255,0.6)"
+        fill="rgba(147,168,255,0.65)"
         fontSize="10"
-        fontWeight="700"
+        fontWeight="800"
         letterSpacing="3"
         textAnchor="middle"
         dominantBaseline="middle"
         transform={`rotate(-58 ${project(PAD + WING_W + CORRIDOR / 2, PLAN_D / 2, 2).x} ${project(PAD + WING_W + CORRIDOR / 2, PLAN_D / 2, 2).y})`}
       >
-        CORRIDOR
+        CENTRAL CORRIDOR
       </text>
 
       {/* ---------- shared utilities ---------- */}
@@ -208,10 +218,10 @@ export function IsoPlan({
           <g key={u.label} style={{ pointerEvents: 'none' }}>
             <Volume
               x={u.x} y={u.y} w={u.w} h={u.h} base={0} elev={UTIL_ELEV}
-              top="rgba(147,168,255,0.055)" left="rgba(10,16,44,0.75)" right="rgba(14,20,52,0.75)"
-              stroke="rgba(147,168,255,0.3)" project={project}
+              top="rgba(147,168,255,0.07)" left="rgba(10,16,44,0.8)" right="rgba(14,20,52,0.8)"
+              stroke="rgba(147,168,255,0.35)" project={project}
             />
-            <text x={p.x} y={p.y - 2} fill="rgba(147,168,255,0.85)" fontSize="10" fontWeight="700" letterSpacing="1.4" textAnchor="middle">{u.label.toUpperCase()}</text>
+            <text x={p.x} y={p.y - 2} fill="rgba(147,168,255,0.9)" fontSize="10" fontWeight="800" letterSpacing="1.4" textAnchor="middle">{u.label.toUpperCase()}</text>
           </g>
         )
       })}
@@ -234,18 +244,14 @@ export function IsoPlan({
 
       {/* ---------- room blocks ---------- */}
       {roomSlots.map(({ room, x, y, w, h }) => {
-        const status = roomStatus(room)
-        const fill = STATUS_FILL[status] ?? STATUS_FILL.available
+        const rStatus = roomStatus(room)
+        const matchesFilter = !filterStatus || filterStatus === rStatus
+        const fill = STATUS_FILL[rStatus] ?? STATUS_FILL.available
         const counts = bedCounts(room)
         const active = hoveredId === room.id
-        const lifted = active ? 10 : 0
+        const lifted = active ? 12 : 0
         const centre = project(x + w / 2, y + h / 2, ROOM_ELEV + lifted + 1)
-
-        // bed slots laid out left→right across the room's top face
-        const bedSlots = room.beds.map((bed, i) => {
-          const bx = x + w * ((i + 0.5) / room.beds.length)
-          return { bed, p: project(bx, y + h - 18, ROOM_ELEV + lifted + 1.5) }
-        })
+        const dimOpacity = matchesFilter ? 1 : 0.35
 
         return (
           <g
@@ -254,10 +260,11 @@ export function IsoPlan({
             role="button"
             tabIndex={0}
             aria-label={labelFor(room)}
+            opacity={dimOpacity}
             style={{
               cursor: 'pointer',
               transform: `translateY(${-lifted * 0.9}px)`,
-              transition: 'transform 0.28s cubic-bezier(0.22,1,0.36,1)',
+              transition: 'transform 0.28s cubic-bezier(0.22,1,0.36,1), opacity 0.28s',
               outline: 'none',
             }}
             onMouseEnter={() => onRoomHover(room)}
@@ -277,25 +284,34 @@ export function IsoPlan({
               />
             </g>
 
+            {/* 3D bed blocks inside room */}
+            {room.beds.map((bed, i) => {
+              const bw = 24
+              const bh = 42
+              const bx = x + 14 + (i % 2) * (bw + 12)
+              const by = y + 14 + Math.floor(i / 2) * (bh + 8)
+              return (
+                <g key={bed.id} style={{ pointerEvents: 'none' }}>
+                  <BedVolume
+                    x={bx} y={by} w={bw} h={bh}
+                    base={ROOM_ELEV + lifted}
+                    status={bed.status}
+                    project={project}
+                  />
+                </g>
+              )
+            })}
+
             {/* labels stay upright */}
-            <text x={centre.x} y={centre.y - 12} fill="#eaf0ff" fontSize="13" fontWeight="800" letterSpacing="-0.2" textAnchor="middle">
+            <text x={centre.x} y={centre.y - 12} fill="#ffffff" fontSize="13" fontWeight="800" letterSpacing="-0.2" textAnchor="middle">
               {room.number}
             </text>
-            <text x={centre.x} y={centre.y + 2} fill="rgba(195,204,237,0.85)" fontSize="9.5" textAnchor="middle">
+            <text x={centre.x} y={centre.y + 3} fill="rgba(215,224,255,0.9)" fontSize="9.5" fontWeight="600" textAnchor="middle">
               {room.type} · {room.seater}-seater · {counts.available}/{counts.total} free
             </text>
 
-            {bedSlots.map(({ bed, p }) => (
-              <g key={bed.id} style={{ pointerEvents: 'none' }}>
-                <circle cx={p.x} cy={p.y} r="4.6" fill={STATUS_FILL[bed.status]?.dot ?? '#94a3b8'} opacity={bed.status === 'available' ? 1 : 0.85} />
-                {shortlist.includes(room.id) && bed.status === 'available' && (
-                  <circle cx={p.x} cy={p.y} r="7.4" fill="none" stroke="#22d3ee" strokeWidth="1.1" opacity="0.8" />
-                )}
-              </g>
-            ))}
-
             {shortlist.includes(room.id) && (
-              <text x={centre.x} y={centre.y + 18} fill="#22d3ee" fontSize="9" fontWeight="700" textAnchor="middle">★ SHORTLISTED</text>
+              <text x={centre.x} y={centre.y + 18} fill="#22d3ee" fontSize="9.5" fontWeight="800" textAnchor="middle">★ SHORTLISTED</text>
             )}
           </g>
         )

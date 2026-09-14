@@ -8,11 +8,12 @@ import { IsoPlan, IsoPlanStack } from '../components/IsoFloor'
 import { RoomDetail } from '../components/RoomDetail'
 import { useApp } from '../lib/store'
 
-type Camera = 'iso' | 'top' | 'front'
+type Camera = 'iso' | 'top' | 'front' | 'perspective'
 const CAMERAS: Record<Camera, { pitch: number; yaw: number; label: string }> = {
   iso: { pitch: 54, yaw: 42, label: 'Isometric' },
   top: { pitch: 6, yaw: 42, label: 'Top-down' },
   front: { pitch: 76, yaw: 14, label: 'Front' },
+  perspective: { pitch: 42, yaw: 68, label: 'Perspective 45°' },
 }
 
 const LEGEND = [
@@ -32,6 +33,8 @@ export function HostelMap() {
   const [camera, setCamera] = useState<Camera>('iso')
   const [zoom, setZoom] = useState(0.85)
   const [angles, setAngles] = useState({ pitch: CAMERAS.iso.pitch, yaw: CAMERAS.iso.yaw })
+  const [autoOrbit, setAutoOrbit] = useState(false)
+  const [filterStatus, setFilterStatus] = useState<string | null>(null)
   const [hovered, setHovered] = useState<Room | null>(null)
   const [pointer, setPointer] = useState({ x: 0, y: 0 })
   const [detail, setDetail] = useState<Room | null>(null)
@@ -128,10 +131,24 @@ export function HostelMap() {
     return () => el.removeEventListener('wheel', handler)
   }, [])
 
+  /* Auto-Orbit 3D continuous rotation */
+  useEffect(() => {
+    if (!autoOrbit) return
+    let animId: number
+    const rotate = () => {
+      setAngles((a) => ({ ...a, yaw: (a.yaw + 0.35) % 360 }))
+      animId = requestAnimationFrame(rotate)
+    }
+    animId = requestAnimationFrame(rotate)
+    return () => cancelAnimationFrame(animId)
+  }, [autoOrbit])
+
   const openRoom = useCallback((room: Room) => { setDetail(room); setDetailOpen(true) }, [])
   const setFloorSafe = (f: number | 'all') => { setFloor(f); setHovered(null) }
   const resetView = () => {
     setCamera('iso')
+    setAutoOrbit(false)
+    setFilterStatus(null)
     setAngles({ pitch: CAMERAS.iso.pitch, yaw: CAMERAS.iso.yaw })
     setZoom(window.matchMedia('(max-width: 720px)').matches ? 0.6 : 0.85)
   }
@@ -144,7 +161,14 @@ export function HostelMap() {
         sub="Pick a building and floor, then drag to orbit the plan, scroll to zoom, and click any room block to open its full detail panel — bed by bed. Colours follow live availability."
         right={
           <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
-            <span className="chip-tag cyan"><Icon name="layers" size={12} /> Vector-rendered · runs without WebGL</span>
+            <Button
+              variant={autoOrbit ? 'primary' : 'ghost'}
+              size="sm"
+              icon="refresh"
+              onClick={() => setAutoOrbit((o) => !o)}
+            >
+              {autoOrbit ? 'Pause Orbit' : 'Auto-Orbit 3D'}
+            </Button>
             <Button variant="ghost" size="sm" icon="refresh" onClick={resetView}>Reset view</Button>
           </div>
         }
@@ -194,11 +218,11 @@ export function HostelMap() {
         <div className="row-between" style={{ gap: 14, flexWrap: 'wrap' }}>
           <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
             {(Object.keys(CAMERAS) as Camera[]).map((c) => (
-              <button key={c} className={`chip ${camera === c ? 'on' : ''}`} aria-pressed={camera === c} onClick={() => setCamera(c)}>
+              <button key={c} className={`chip ${camera === c ? 'on' : ''}`} aria-pressed={camera === c} onClick={() => { setCamera(c); setAutoOrbit(false) }}>
                 <Icon name="map" size={12} /> {CAMERAS[c].label}
               </button>
             ))}
-            <span className="tiny dim">Drag the plan to orbit · scroll to zoom</span>
+            <span className="tiny dim">Drag plan to orbit · scroll to zoom</span>
           </div>
 
           <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
@@ -239,6 +263,7 @@ export function HostelMap() {
                   buildingCode={building?.code ?? ''}
                   pitch={angles.pitch} yaw={angles.yaw} zoom={zoom}
                   hoveredId={hovered?.id} shortlist={shortlist}
+                  filterStatus={filterStatus}
                   onRoomHover={setHovered} onRoomOpen={openRoom}
                 />
               </div>
@@ -271,19 +296,30 @@ export function HostelMap() {
             <div className="map-controls">
               <button className="map-ctrl" onClick={() => setZoom((z) => Math.min(1.7, z + 0.12))} aria-label="Zoom in"><Icon name="plus" size={18} /></button>
               <button className="map-ctrl" onClick={() => setZoom((z) => Math.max(0.45, z - 0.12))} aria-label="Zoom out"><Icon name="list" size={18} style={{ transform: 'rotate(-45deg)' }} /></button>
+              <button className="map-ctrl" onClick={() => setAutoOrbit((o) => !o)} title="Toggle continuous 3D rotation"><Icon name="refresh" size={17} style={{ color: autoOrbit ? 'var(--cyan)' : undefined }} /></button>
               <button className="map-ctrl" onClick={resetView} aria-label="Reset camera"><Icon name="refresh" size={17} /></button>
             </div>
 
             <div className="map-legend" aria-label="Room status legend">
-              <b className="tiny" style={{ letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)' }}>Room status</b>
+              <div className="row-between" style={{ gap: 8 }}>
+                <b className="tiny" style={{ letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--muted)' }}>3D Filter</b>
+                {filterStatus && (
+                  <button className="link-btn tiny" onClick={() => setFilterStatus(null)}>Clear</button>
+                )}
+              </div>
               {LEGEND.map((l) => (
-                <span className="legend-item" key={l.status}>
+                <span
+                  className="legend-item"
+                  key={l.status}
+                  style={{ opacity: filterStatus && filterStatus !== l.status ? 0.45 : 1, fontWeight: filterStatus === l.status ? 800 : 600 }}
+                  onClick={() => setFilterStatus((prev) => (prev === l.status ? null : l.status))}
+                >
                   <i className="legend-swatch" style={{ background: `var(--${l.status === 'partial' ? 'warn' : l.status === 'full' ? 'danger' : l.status === 'reserved' ? 'info' : l.status === 'maintenance' ? 'grey' : 'ok'})`, boxShadow: 'none' }} />
                   {l.label}
                 </span>
               ))}
               <span className="legend-item" style={{ marginTop: 4, color: 'var(--muted)' }}>
-                <i className="legend-swatch" style={{ background: 'rgba(147,168,255,0.25)' }} /> Bed dots show bed status
+                <i className="legend-swatch" style={{ background: 'rgba(147,168,255,0.25)' }} /> 3D Bed frames inside rooms
               </span>
             </div>
           </div>
