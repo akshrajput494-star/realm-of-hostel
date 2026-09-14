@@ -437,3 +437,205 @@ export function IsoPlanStack({
     </svg>
   )
 }
+
+/* =========================================================================
+   Combined Campus 3D Master Plan — All 3 Blocks (ARV, NLG, VND) + Courtyard
+   ========================================================================= */
+const CAMPUS_W = 1080
+const CAMPUS_D = 740
+
+export interface IsoCampusMasterPlanProps {
+  allRooms: Room[]
+  pitch: number
+  yaw: number
+  zoom: number
+  hoveredId?: string | null
+  filterStatus?: string | null
+  shortlist: string[]
+  onRoomHover: (room: Room | null) => void
+  onRoomOpen: (room: Room) => void
+  onSelectBuilding: (buildingId: string) => void
+}
+
+export function IsoCampusMasterPlan({
+  allRooms, pitch, yaw, zoom, hoveredId, filterStatus, shortlist, onRoomHover, onRoomOpen, onSelectBuilding,
+}: IsoCampusMasterPlanProps) {
+  const project = useMemo(() => makeProjector(pitch, yaw, zoom), [pitch, yaw, zoom])
+
+  const b1Rooms = useMemo(() => allRooms.filter((r) => r.buildingId === 'B1'), [allRooms])
+  const b2Rooms = useMemo(() => allRooms.filter((r) => r.buildingId === 'B2'), [allRooms])
+  const b3Rooms = useMemo(() => allRooms.filter((r) => r.buildingId === 'B3'), [allRooms])
+
+  const blockLayouts = [
+    { id: 'B1', name: 'Aravalli Block', code: 'ARV', x: 50, y: 60, w: 320, h: 260, rooms: b1Rooms, label: 'ARAVALLI BLOCK (BOYS)' },
+    { id: 'B2', name: 'Nilgiri Block', code: 'NLG', x: 710, y: 60, w: 320, h: 260, rooms: b2Rooms, label: 'NILGIRI BLOCK (BOYS)' },
+    { id: 'B3', name: 'Vindhya Block', code: 'VND', x: 380, y: 440, w: 320, h: 240, rooms: b3Rooms, label: 'VINDHYA BLOCK (GIRLS)' },
+  ]
+
+  const topZ = 160
+  const bbox = (() => {
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
+    for (const [x, y, z] of [
+      [0, 0, -PLATE], [CAMPUS_W, 0, -PLATE], [CAMPUS_W, CAMPUS_D, -PLATE], [0, CAMPUS_D, -PLATE],
+      [0, 0, topZ], [CAMPUS_W, 0, topZ], [CAMPUS_W, CAMPUS_D, topZ], [0, CAMPUS_D, topZ],
+    ] as Pt[]) {
+      const p = project(x, y, z)
+      minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x)
+      minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y)
+    }
+    const pad = 36
+    return `${(minX - pad).toFixed(1)} ${(minY - pad).toFixed(1)} ${(maxX - minX + pad * 2).toFixed(1)} ${(maxY - minY + pad * 2).toFixed(1)}`
+  })()
+
+  return (
+    <svg
+      viewBox={bbox} width="100%" height="100%" preserveAspectRatio="xMidYMid meet"
+      role="img" aria-label="Combined 3D Campus Master Plan showing all hostel blocks"
+      style={{ display: 'block', maxHeight: '100%' }}
+    >
+      <defs>
+        <linearGradient id="campusGround" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#1e274a" />
+          <stop offset="100%" stopColor="#0b1026" />
+        </linearGradient>
+        <linearGradient id="messRoof" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="rgba(56,189,248,0.3)" />
+          <stop offset="100%" stopColor="rgba(99,102,241,0.2)" />
+        </linearGradient>
+      </defs>
+
+      {/* ---------- Ground Base Slab ---------- */}
+      <Volume
+        x={0} y={0} w={CAMPUS_W} h={CAMPUS_D} base={-PLATE} elev={PLATE}
+        top="url(#campusGround)" left="#0a0d1f" right="#070a19"
+        stroke="rgba(147,168,255,0.25)" project={project}
+      />
+
+      {/* ---------- Pathways & Roads ---------- */}
+      <polygon
+        points={toPath(corners(380, 60, 310, 360), project)}
+        fill="rgba(147,168,255,0.04)" stroke="rgba(147,168,255,0.2)" strokeDasharray="6 5"
+      />
+      <polygon
+        points={toPath(corners(50, 340, 980, 80), project)}
+        fill="rgba(147,168,255,0.04)" stroke="rgba(147,168,255,0.2)" strokeDasharray="6 5"
+      />
+
+      {/* ---------- Central Mess & Recreation Pavilion ---------- */}
+      <g style={{ pointerEvents: 'none' }}>
+        <Volume
+          x={410} y={100} w={250} h={180} base={0} elev={35}
+          top="url(#messRoof)" left="rgba(30,40,90,0.7)" right="rgba(40,50,110,0.7)"
+          stroke="rgba(56,189,248,0.4)" project={project}
+        />
+        <text
+          x={project(535, 190, 38).x} y={project(535, 190, 38).y}
+          fill="rgba(56,189,248,0.95)" fontSize="11" fontWeight="800" letterSpacing="1.5" textAnchor="middle"
+        >
+          CENTRAL MESS & DINING HALL
+        </text>
+      </g>
+
+      {/* ---------- Central Courtyard Sports Lawn ---------- */}
+      <polygon
+        points={toPath(corners(410, 300, 250, 110), project)}
+        fill="rgba(16,185,129,0.12)" stroke="rgba(16,185,129,0.4)" strokeWidth="1"
+      />
+      <text
+        x={project(535, 355, 2).x} y={project(535, 355, 2).y}
+        fill="rgba(52,211,153,0.85)" fontSize="9.5" fontWeight="700" letterSpacing="1.5" textAnchor="middle"
+      >
+        COURTYARD & SPORTS LAWN
+      </text>
+
+      {/* ---------- 3D Blocks (ARV, NLG, VND) ---------- */}
+      {blockLayouts.map((blk) => {
+        const sortedRooms = [...blk.rooms].sort((a, b) => a.number.localeCompare(b.number))
+        const floors = [0, 1, 2, 3]
+        const blkHeaderP = project(blk.x + blk.w / 2, blk.y - 12, 140)
+
+        return (
+          <g key={blk.id}>
+            {/* Block Header Title */}
+            <g
+              style={{ cursor: 'pointer' }}
+              onClick={() => onSelectBuilding(blk.id)}
+            >
+              <rect
+                x={blkHeaderP.x - 90} y={blkHeaderP.y - 16} width={180} height={24} rx={6}
+                fill="rgba(18,18,21,0.9)" stroke="var(--cyan)" strokeWidth="1"
+              />
+              <text
+                x={blkHeaderP.x} y={blkHeaderP.y}
+                fill="#ffffff" fontSize="10.5" fontWeight="800" letterSpacing="1" textAnchor="middle" dominantBaseline="middle"
+              >
+                {blk.label}
+              </text>
+            </g>
+
+            {/* 4 Floor Slices Stacked */}
+            {floors.map((fl) => {
+              const flRooms = sortedRooms.filter((r) => r.floor === fl)
+              const stackElev = fl * 28
+              const flBase = 4 + stackElev
+
+              return flRooms.map((room, ri) => {
+                const rStatus = roomStatus(room)
+                const matchesFilter = !filterStatus || filterStatus === rStatus
+                const fill = STATUS_FILL[rStatus] ?? STATUS_FILL.available
+                const active = hoveredId === room.id
+                const lifted = active ? 8 : 0
+                const col = ri % 2
+                const row = Math.floor(ri / 2)
+                const rx = blk.x + 18 + col * 142
+                const ry = blk.y + 18 + row * 105
+                const rw = 130
+                const rh = 92
+                const centre = project(rx + rw / 2, ry + rh / 2, flBase + 18 + lifted)
+
+                return (
+                  <g
+                    key={room.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`Room ${room.number}, ${rStatus}`}
+                    opacity={matchesFilter ? 1 : 0.3}
+                    style={{
+                      cursor: 'pointer',
+                      transform: `translateY(${-lifted * 0.9}px)`,
+                      transition: 'transform 0.25s, opacity 0.25s',
+                      outline: 'none',
+                    }}
+                    onMouseEnter={() => onRoomHover(room)}
+                    onMouseLeave={() => onRoomHover(null)}
+                    onFocus={() => onRoomHover(room)}
+                    onBlur={() => onRoomHover(null)}
+                    onClick={() => onRoomOpen(room)}
+                  >
+                    <g filter={active ? 'url(#softGlow)' : undefined}>
+                      <Volume
+                        x={rx} y={ry} w={rw} h={rh} base={flBase} elev={16 + lifted}
+                        top={fill.top} left={fill.left} right={fill.right}
+                        stroke={active ? '#22d3ee' : fill.stroke} project={project}
+                      />
+                    </g>
+                    <text x={centre.x} y={centre.y - 4} fill="#ffffff" fontSize="11" fontWeight="800" textAnchor="middle">
+                      {room.number}
+                    </text>
+                    <text x={centre.x} y={centre.y + 8} fill="rgba(215,224,255,0.85)" fontSize="8.5" textAnchor="middle">
+                      {bedCounts(room).available}/{bedCounts(room).total} free
+                    </text>
+                    {shortlist.includes(room.id) && (
+                      <text x={centre.x} y={centre.y + 18} fill="#22d3ee" fontSize="8" fontWeight="800" textAnchor="middle">★</text>
+                    )}
+                  </g>
+                )
+              })
+            })}
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+

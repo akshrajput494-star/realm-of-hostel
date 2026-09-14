@@ -4,7 +4,7 @@ import {
 } from '../data/mock'
 import { Icon } from '../lib/icons'
 import { Button, EmptyState, SectionHead, StatusBadge } from '../lib/ui'
-import { IsoPlan, IsoPlanStack } from '../components/IsoFloor'
+import { IsoCampusMasterPlan, IsoPlan, IsoPlanStack } from '../components/IsoFloor'
 import { RoomDetail } from '../components/RoomDetail'
 import { useApp } from '../lib/store'
 
@@ -28,7 +28,7 @@ export function HostelMap() {
   const { shortlist } = useApp()
   const viewportRef = useRef<HTMLDivElement>(null)
 
-  const [buildingId, setBuildingId] = useState(BUILDINGS[0].id)
+  const [buildingId, setBuildingId] = useState<string>('all')
   const [floor, setFloor] = useState<number | 'all'>(0)
   const [camera, setCamera] = useState<Camera>('iso')
   const [zoom, setZoom] = useState(0.85)
@@ -40,11 +40,11 @@ export function HostelMap() {
   const [detail, setDetail] = useState<Room | null>(null)
   const [detailOpen, setDetailOpen] = useState(false)
 
-  const building = getBuilding(buildingId)
-  const buildingRooms = useMemo(() => ROOMS.filter((r) => r.buildingId === buildingId), [buildingId])
+  const building = buildingId === 'all' ? null : getBuilding(buildingId)
+  const buildingRooms = useMemo(() => (buildingId === 'all' ? ROOMS : ROOMS.filter((r) => r.buildingId === buildingId)), [buildingId])
   const visibleRooms = useMemo(
-    () => (floor === 'all' ? buildingRooms : buildingRooms.filter((r) => r.floor === floor)).sort((a, b) => a.number.localeCompare(b.number)),
-    [buildingRooms, floor],
+    () => (buildingId === 'all' || floor === 'all' ? buildingRooms : buildingRooms.filter((r) => r.floor === floor)).sort((a, b) => a.number.localeCompare(b.number)),
+    [buildingId, buildingRooms, floor],
   )
 
   const stats = useMemo(() => {
@@ -180,6 +180,13 @@ export function HostelMap() {
           <div className="field">
             <label>Building / block</label>
             <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+              <button
+                className={`chip ${buildingId === 'all' ? 'on' : ''}`}
+                aria-pressed={buildingId === 'all'}
+                onClick={() => { setBuildingId('all'); setHovered(null) }}
+              >
+                <Icon name="grid" size={13} /> ALL · Campus Master Plan (Combined)
+              </button>
               {BUILDINGS.map((b) => (
                 <button
                   key={b.id} className={`chip ${buildingId === b.id ? 'on' : ''}`}
@@ -243,9 +250,20 @@ export function HostelMap() {
             onPointerMove={onPointerMove}
             onPointerLeave={() => setPointer({ x: -999, y: -999 })}
             style={{ cursor: drag.current ? 'grabbing' : 'grab' }}
-            aria-label={`Interactive isometric plan of ${building?.name}`}
+            aria-label="Interactive isometric campus map"
           >
-            {floor === 'all' ? (
+            {buildingId === 'all' ? (
+              <div style={{ width: '100%', height: '100%', minHeight: 480 }}>
+                <IsoCampusMasterPlan
+                  allRooms={ROOMS}
+                  pitch={angles.pitch} yaw={angles.yaw} zoom={zoom}
+                  hoveredId={hovered?.id} shortlist={shortlist}
+                  filterStatus={filterStatus}
+                  onRoomHover={setHovered} onRoomOpen={openRoom}
+                  onSelectBuilding={(bId) => setBuildingId(bId)}
+                />
+              </div>
+            ) : floor === 'all' ? (
               <div style={{ width: '100%', height: '100%', minHeight: 460 }}>
                 <IsoPlanStack
                   roomsByFloor={FLOORS.map((f) => ({ floor: f, rooms: buildingRooms.filter((r) => r.floor === f) }))}
@@ -290,7 +308,7 @@ export function HostelMap() {
             )}
 
             <div className="map-compass">
-              {floor === 'all' ? 'STACKED' : `FLOOR ${floorShort(floor as number)} · ${building?.code}`} · {Math.round(angles.yaw)}°
+              {buildingId === 'all' ? 'CAMPUS MASTER PLAN (ALL BLOCKS)' : floor === 'all' ? `STACKED · ${building?.code}` : `FLOOR ${floorShort(floor as number)} · ${building?.code}`} · {Math.round(angles.yaw)}°
             </div>
 
             <div className="map-controls">
@@ -328,13 +346,15 @@ export function HostelMap() {
         {/* --------------------------- side panel ------------------------ */}
         <aside className="col" style={{ gap: 16 }}>
           <div className="card">
-            <div className="card-title" style={{ marginBottom: 12 }}><Icon name="building" size={16} /> {building?.name}</div>
+            <div className="card-title" style={{ marginBottom: 12 }}>
+              <Icon name="building" size={16} /> {buildingId === 'all' ? 'Combined Campus Master Plan' : building?.name}
+            </div>
             <div className="kv">
-              <div className="kv-row"><span>Hostel</span><span>{building?.hostelId === 'H1' ? 'Aryabhatta Boys Hostel' : 'Kalpana Girls Hostel'}</span></div>
-              <div className="kv-row"><span>Structure</span><span>{building?.floorsLabel} · {building?.floors} floors</span></div>
-              <div className="kv-row"><span>Commissioned</span><span>{building?.yearBuilt}</span></div>
-              <div className="kv-row"><span>Rooms in block</span><span>{buildingRooms.length}</span></div>
-              <div className="kv-row"><span>Beds in block</span><span>{buildingRooms.flatMap((r) => r.beds).length}</span></div>
+              <div className="kv-row"><span>Scope</span><span>{buildingId === 'all' ? 'All 3 Hostel Blocks (ARV, NLG, VND)' : building?.hostelId === 'H1' ? 'Aryabhatta Boys Hostel' : 'Kalpana Girls Hostel'}</span></div>
+              <div className="kv-row"><span>Total Blocks</span><span>3 Active Buildings</span></div>
+              <div className="kv-row"><span>Structure</span><span>{buildingId === 'all' ? 'Ground + 3 Floors each' : `${building?.floorsLabel} · ${building?.floors} floors`}</span></div>
+              <div className="kv-row"><span>Rooms on view</span><span>{buildingRooms.length}</span></div>
+              <div className="kv-row"><span>Total Beds</span><span>{buildingRooms.flatMap((r) => r.beds).length}</span></div>
               <div className="kv-row"><span>Warden desk</span><span>+91 98110 22110</span></div>
             </div>
           </div>
