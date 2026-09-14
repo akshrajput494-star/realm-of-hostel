@@ -4,9 +4,9 @@
    ========================================================================= */
 
 :root, [data-theme="dark"] {
-  --bg: #0f172a;
-  --bg-2: #1e293b;
-  --bg-3: #334155;
+  --bg: #09090b;
+  --bg-2: #121215;
+  --bg-3: #1c1c21;
 
   --violet: #6366f1;
   --violet-2: #818cf8;
@@ -15,25 +15,25 @@
   --cyan: #38bdf8;
   --pink: #ec4899;
 
-  --text: #f8fafc;
-  --text-2: #cbd5e1;
-  --muted: #94a3b8;
-  --muted-2: #64748b;
+  --text: #f4f4f5;
+  --text-2: #a1a1aa;
+  --muted: #71717a;
+  --muted-2: #52525b;
 
   --ok: #10b981;
   --warn: #f59e0b;
   --danger: #ef4444;
   --info: #0284c7;
-  --grey: #64748b;
+  --grey: #71717a;
 
-  --glass: #1e293b;
-  --glass-2: #334155;
-  --stroke: #334155;
-  --stroke-2: #475569;
+  --glass: #121215;
+  --glass-2: #1c1c21;
+  --stroke: #27272a;
+  --stroke-2: #3f3f46;
 
-  --grad: linear-gradient(135deg, #6366f1 0%, #3b82f6 50%, #0284c7 100%);
-  --grad-2: linear-gradient(135deg, #4f46e5 0%, #0284c7 100%);
-  --grad-pink: linear-gradient(135deg, #c026d3 0%, #e11d48 100%);
+  --grad: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  --grad-2: linear-gradient(135deg, #27272a 0%, #18181b 100%);
+  --grad-pink: linear-gradient(135deg, #be123c 0%, #9f1239 100%);
 
   --r-xs: 8px;
   --r-sm: 12px;
@@ -41,11 +41,11 @@
   --r-lg: 20px;
   --r-xl: 28px;
 
-  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-2: 0 10px 25px -5px rgba(0, 0, 0, 0.35), 0 8px 10px -6px rgba(0, 0, 0, 0.2);
-  --shadow-3: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
-  --glow-v: 0 0 0 1px rgba(99, 102, 241, 0.3), 0 8px 20px -6px rgba(99, 102, 241, 0.25);
-  --glow-c: 0 0 0 1px rgba(56, 189, 248, 0.3), 0 8px 20px -6px rgba(56, 189, 248, 0.25);
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.6);
+  --shadow-2: 0 10px 25px -5px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-3: 0 20px 40px -15px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --glow-v: 0 0 0 1px rgba(99, 102, 241, 0.35);
+  --glow-c: 0 0 0 1px rgba(56, 189, 248, 0.35);
 
   --nav-h: 68px;
   --maxw: 1240px;

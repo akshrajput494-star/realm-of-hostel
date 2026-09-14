@@ -145,12 +145,21 @@ export function Modal({
   children: React.ReactNode; footer?: React.ReactNode; size?: 'sm' | 'md' | 'lg'; labelledBy?: string
 }) {
   const closeRef = useRef<HTMLButtonElement>(null)
+  const prevOpenRef = useRef(false)
 
   useEffect(() => {
-    if (!open) return
+    if (!open) {
+      prevOpenRef.current = false
+      return
+    }
+
+    if (!prevOpenRef.current) {
+      prevOpenRef.current = true
+      closeRef.current?.focus()
+    }
+
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', onKey)
-    closeRef.current?.focus()
     const prev = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     return () => {
@@ -281,7 +290,7 @@ export function Field({
 }: { label: string; hint?: string; error?: string; children: React.ReactNode; id: string }) {
   return (
     <div className="field">
-      <label htmlFor={id}>{label}</label>
+      <label className="field-label" htmlFor={id}>{label}</label>
       {children}
       {hint && !error && <span className="tiny dim">{hint}</span>}
       {error && <span className="tiny" style={{ color: 'var(--danger)' }} role="alert">{error}</span>}
