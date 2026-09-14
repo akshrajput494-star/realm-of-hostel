@@ -607,3 +607,111 @@ select:-webkit-autofill {
 }
 .rating button.on { color: var(--warn); }
 .rating button:hover:not(:disabled) { color: var(--warn); transform: scale(1.15); }
+
+/* =========================================================================
+   Room Card Component
+   ========================================================================= */
+.room-card {
+  display: flex; flex-direction: column; gap: 0;
+  cursor: default;
+}
+
+/* Entry animation for room cards */
+@keyframes animUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim-up { animation: animUp 0.35s var(--ease) both; }
+
+/* Card sections */
+.rc-top {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 10px; margin-bottom: 14px;
+}
+.room-no {
+  font-size: 1.15rem; font-weight: 800; letter-spacing: -0.02em;
+  color: var(--text); line-height: 1.2;
+}
+.rc-body { flex: 1; }
+.room-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+
+/* Spec figures: total/occupied/available beds */
+.rc-specs {
+  display: flex; gap: 16px; margin-bottom: 12px;
+  padding: 10px 14px; background: var(--bg-3);
+  border-radius: var(--r-xs); border: 1px solid var(--stroke);
+}
+.spec {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; flex: 1;
+}
+.spec b { font-size: 1.25rem; font-weight: 800; color: var(--text); line-height: 1.1; }
+.spec span { font-size: 0.68rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+/* Facility pills row */
+.fac-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+
+/* Fee row */
+.fee-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding-top: 12px; border-top: 1px solid var(--stroke); margin-bottom: 12px;
+}
+.fee-m { font-size: 1.2rem; font-weight: 800; color: var(--text); line-height: 1; }
+.fee-s { font-size: 0.76rem; color: var(--muted); margin-top: 3px; }
+
+/* Action buttons row at bottom */
+.rc-actions {
+  display: flex; gap: 7px; flex-wrap: wrap;
+  padding-top: 10px; border-top: 1px solid var(--stroke);
+}
+
+/* =========================================================================
+   Bed Grid (Room Detail dialog)
+   ========================================================================= */
+.bed-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 10px;
+}
+.bed {
+  border-radius: var(--r-sm); border: 1px solid var(--stroke);
+  padding: 12px 14px; background: var(--bg-3);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.bed.available { border-color: rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.07); }
+.bed.occupied  { border-color: rgba(239, 68, 68, 0.3);   background: rgba(239, 68, 68, 0.06); }
+.bed.reserved  { border-color: rgba(56, 189, 248, 0.3);  background: rgba(56, 189, 248, 0.06); }
+.bed.maintenance { border-color: var(--stroke); background: var(--bg-3); }
+.bed-lock { color: var(--muted-2); display: flex; }
+
+/* =========================================================================
+   Compare tray (sticky bar at bottom)
+   ========================================================================= */
+.compare-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 20px; max-width: 100%;
+  background: var(--bg-2); border-top: 1px solid var(--stroke);
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Compare modal table */
+.data { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+.data th, .data td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--stroke); }
+.data th { background: var(--bg-3); font-weight: 700; color: var(--text); }
+.data td { color: var(--text-2); }
+.data tr:last-child td { border-bottom: 0; }
+.data tr:hover td { background: var(--bg-3); }
+
+/* =========================================================================
+   Utilities
+   ========================================================================= */
+.hide-sm { display: inline; }
+@media (max-width: 480px) { .hide-sm { display: none; } }
+
+/* Light theme overrides for room cards & beds */
+[data-theme="light"] .rc-specs { background: #f8fafc; border-color: #e2e8f0; }
+[data-theme="light"] .bed { background: #f8fafc; }
+[data-theme="light"] .bed.available { background: rgba(5, 150, 105, 0.06); border-color: rgba(5, 150, 105, 0.3); }
+[data-theme="light"] .bed.occupied  { background: rgba(220, 38, 38, 0.05); border-color: rgba(220, 38, 38, 0.25); }
+[data-theme="light"] .bed.reserved  { background: rgba(2, 132, 199, 0.05); border-color: rgba(2, 132, 199, 0.25); }
+[data-theme="light"] .compare-bar { background: rgba(255,255,255,0.98); backdrop-filter: blur(8px); }
