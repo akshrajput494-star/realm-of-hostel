@@ -85,19 +85,15 @@ export function RoomDetail({
 
   const handleApply = () => {
     if (!user) {
-      setError('Please sign in with a demo account before applying for a room.')
-      toast('warn', 'Sign in required', 'Use the Login page and pick a demo role to submit a room application.')
-      return
-    }
-    if (user.role !== 'student') {
-      setError(`Room applications can only be submitted from a student account. You are signed in as ${user.role}.`)
-      toast('warn', 'Student account required', 'Switch to student@roh.demo to apply for a room.')
+      setError('Please sign in before submitting a room booking application.')
+      toast('warn', 'Sign in required', 'Please sign in to submit a room booking application.')
       return
     }
     setError('')
     applyForRoom(room, note.trim() || undefined)
     setNote('')
     onApplied?.()
+    onClose()
   }
 
   return (

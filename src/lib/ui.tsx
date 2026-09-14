@@ -142,7 +142,7 @@ export function Modal({
   open, onClose, title, subtitle, children, footer, size = 'md', labelledBy = 'roh-modal-title',
 }: {
   open: boolean; onClose: () => void; title: React.ReactNode; subtitle?: React.ReactNode
-  children: React.ReactNode; footer?: React.ReactNode; size?: 'sm' | 'md'; labelledBy?: string
+  children: React.ReactNode; footer?: React.ReactNode; size?: 'sm' | 'md' | 'lg'; labelledBy?: string
 }) {
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -166,18 +166,20 @@ export function Modal({
       role="dialog" aria-modal="true" aria-labelledby={labelledBy}
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className={`modal ${size === 'sm' ? 'sm' : ''}`}>
+      <div className={`modal ${size}`}>
         <div className="modal-head">
           <div>
-            <h3 id={labelledBy} style={{ marginBottom: subtitle ? 6 : 0 }}>{title}</h3>
+            <h3 id={labelledBy} style={{ marginBottom: subtitle ? 4 : 0 }}>{title}</h3>
             {subtitle && <p className="small muted" style={{ margin: 0 }}>{subtitle}</p>}
           </div>
           <button ref={closeRef} className="modal-x" onClick={onClose} aria-label="Close dialog">
             <Icon name="x" size={18} />
           </button>
         </div>
-        {children}
-        {footer && <div className="row" style={{ justifyContent: 'flex-end', gap: 10, marginTop: 22, flexWrap: 'wrap' }}>{footer}</div>}
+        <div className="modal-body">
+          {children}
+        </div>
+        {footer && <div className="modal-foot">{footer}</div>}
       </div>
     </div>
   )
