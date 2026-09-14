@@ -61,6 +61,10 @@ interface StoreValue {
   notices: Notice[]
   addNotice: (n: Omit<Notice, 'id'>) => void
   removeNotice: (id: string) => void
+  /* students */
+  students: Student[]
+  addStudent: (input: Omit<Student, 'id' | 'avatar' | 'attendancePct'>) => Student
+  removeStudent: (id: string) => void
   /* ui */
   theme: 'dark' | 'light'
   toggleTheme: () => void
@@ -91,6 +95,7 @@ const KEYS = {
   complaints: 'roh.v1.complaints',
   payments: 'roh.v1.payments',
   notices: 'roh.v1.notices',
+  students: 'roh.v1.students',
 }
 
 function load<T>(key: string, fallback: T): T {
@@ -123,6 +128,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [complaints, setComplaints] = useState<Complaint[]>(() => load<Complaint[]>(KEYS.complaints, SEED_COMPLAINTS))
   const [payments, setPayments] = useState<Payment[]>(() => load<Payment[]>(KEYS.payments, SEED_PAYMENTS))
   const [notices, setNotices] = useState<Notice[]>(() => load<Notice[]>(KEYS.notices, SEED_NOTICES))
+  const [students, setStudents] = useState<Student[]>(() => load<Student[]>(KEYS.students, STUDENTS))
   const [toasts, setToasts] = useState<Toast[]>([])
   const [confirmState, setConfirmState] = useState<ConfirmRequest | null>(null)
 
@@ -142,6 +148,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => save(KEYS.complaints, complaints), [complaints])
   useEffect(() => save(KEYS.payments, payments), [payments])
   useEffect(() => save(KEYS.notices, notices), [notices])
+  useEffect(() => save(KEYS.students, students), [students])
 
   /* ----------------------------- toasts ------------------------------- */
   const timers = useRef<number[]>([])
@@ -288,14 +295,33 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     toast('info', 'Notice removed', 'The notice has been taken down.')
   }, [toast])
 
+  /* ------------------------------- students --------------------------- */
+  const addStudent = useCallback<StoreValue['addStudent']>((input) => {
+    const newStudent: Student = {
+      ...input,
+      id: `S-${1010 + students.length}`,
+      avatar: input.name.trim().split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2) || 'ST',
+      attendancePct: 95,
+    }
+    setStudents((list) => [newStudent, ...list])
+    toast('success', 'Student enrolled', `${newStudent.name} (${newStudent.rollNo}) added to resident roster.`)
+    return newStudent
+  }, [students.length, toast])
+
+  const removeStudent = useCallback<StoreValue['removeStudent']>((id) => {
+    setStudents((list) => list.filter((s) => s.id !== id))
+    toast('info', 'Student removed', `Student record ${id} removed from roster.`)
+  }, [toast])
+
   const resetDemoData = useCallback(() => {
     setShortlist([])
     setCompare([])
     setComplaints(SEED_COMPLAINTS)
     setPayments(SEED_PAYMENTS)
     setNotices(SEED_NOTICES)
+    setStudents(STUDENTS)
     setApplications([])
-    toast('info', 'Demo data reset', 'Shortlist, complaints, payments and notices restored to their seeded state.')
+    toast('info', 'Demo data reset', 'Shortlist, complaints, payments, notices and students restored to seeded state.')
   }, [toast])
 
   const value = useMemo<StoreValue>(() => ({
@@ -307,13 +333,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     complaints, submitComplaint, setComplaintStatus,
     payments, payNow,
     notices, addNotice, removeNotice,
+    students, addStudent, removeStudent,
     toasts, toast, dismissToast,
     confirm, confirmState, resolveConfirm,
     resetDemoData,
   }), [
     user, login, loginAs, logout, theme, toggleTheme, shortlist, toggleShortlist, compare, toggleCompare, clearCompare,
     applications, applyForRoom, decideApplication, complaints, submitComplaint, setComplaintStatus,
-    payments, payNow, notices, addNotice, removeNotice, toasts, toast, dismissToast,
+    payments, payNow, notices, addNotice, removeNotice, students, addStudent, removeStudent, toasts, toast, dismissToast,
     confirm, confirmState, resolveConfirm, resetDemoData,
   ])
 

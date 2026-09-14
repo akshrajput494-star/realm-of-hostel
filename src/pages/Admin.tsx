@@ -28,7 +28,7 @@ const SECTIONS: { id: SectionId; label: string; icon: IconName }[] = [
 ]
 
 export function Admin() {
-  const { user, complaints, payments, applications, notices, decideApplication, setComplaintStatus, addNotice, removeNotice, confirm, toast } = useApp()
+  const { user, complaints, payments, applications, notices, students, addStudent, removeStudent, decideApplication, setComplaintStatus, addNotice, removeNotice, confirm, toast } = useApp()
   const { navigate } = useRouter()
   const stats = hostelStats()
   const [section, setSection] = useState<SectionId>('hostels')
@@ -44,6 +44,25 @@ export function Admin() {
     content: string
     pinned: boolean
   }>({ title: '', category: 'General', content: '', pinned: false })
+
+  /* Modal state for adding new student */
+  const [studentModal, setStudentModal] = useState(false)
+  const [newStudent, setNewStudent] = useState({
+    name: '',
+    email: '',
+    rollNo: '',
+    course: 'B.Tech CSE',
+    year: '1',
+    phone: '',
+    guardian: '',
+    guardianPhone: '',
+    hostelId: 'H1',
+    buildingId: 'B1',
+    roomId: 'ARV-101',
+    bedId: 'ARV-101-B1',
+    feeTotal: 85000,
+    feePaid: 45000,
+  })
 
   const isAdmin = user?.role === 'admin'
   const isWardenAdmin = isAdmin || user?.role === 'warden'
@@ -129,6 +148,48 @@ export function Admin() {
     toast('success', 'Notice published', 'Circular has been broadcast to all resident dashboards.')
   }
 
+  const handleAddStudent = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newStudent.name.trim() || !newStudent.rollNo.trim() || !newStudent.phone.trim()) {
+      toast('warn', 'Incomplete details', 'Please provide student name, roll number, and phone number.')
+      return
+    }
+    addStudent({
+      name: newStudent.name.trim(),
+      email: newStudent.email.trim() || `${newStudent.rollNo.trim().toLowerCase()}@roh.edu.in`,
+      rollNo: newStudent.rollNo.trim(),
+      course: newStudent.course.trim(),
+      year: newStudent.year,
+      phone: newStudent.phone.trim(),
+      guardian: newStudent.guardian.trim() || 'Parent / Guardian',
+      guardianPhone: newStudent.guardianPhone.trim() || newStudent.phone.trim(),
+      hostelId: newStudent.hostelId,
+      buildingId: newStudent.buildingId,
+      roomId: newStudent.roomId.trim(),
+      bedId: newStudent.bedId.trim(),
+      feeTotal: Number(newStudent.feeTotal) || 85000,
+      feePaid: Number(newStudent.feePaid) || 0,
+    })
+    setNewStudent({
+      name: '', email: '', rollNo: '', course: 'B.Tech CSE', year: '1', phone: '',
+      guardian: '', guardianPhone: '', hostelId: 'H1', buildingId: 'B1', roomId: 'ARV-101',
+      bedId: 'ARV-101-B1', feeTotal: 85000, feePaid: 45000,
+    })
+    setStudentModal(false)
+  }
+
+  const handleRemoveStudent = async (id: string, name: string) => {
+    const ok = await confirm({
+      title: 'Remove student record?',
+      message: `Are you sure you want to remove ${name} (${id}) from the active hostel roster?`,
+      confirmLabel: 'Remove student',
+      danger: true,
+    })
+    if (ok) {
+      removeStudent(id)
+    }
+  }
+
   const toggleBedStatus = (bedId: string, current: BedStatus) => {
     const next: Record<BedStatus, BedStatus> = {
       available: 'reserved',
@@ -149,6 +210,7 @@ export function Admin() {
         sub="Complete administrative command room: real-time KPIs, instant bed status overrides, pending application approvals, fee ledger management, and circular broadcasting."
         right={
           <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+            <Button variant="ghost" size="sm" icon="plus" onClick={() => setStudentModal(true)}>Add Student</Button>
             <Button variant="ghost" size="sm" icon="download" onClick={handleExportAudit}>Export Audit</Button>
             <Button variant="primary" size="sm" icon="bell" onClick={() => setNoticeModal(true)}>Publish Notice</Button>
           </div>
@@ -404,23 +466,42 @@ export function Admin() {
 
         {/* Students */}
         {section === 'students' && (
-          <div className="table-wrap">
-            <table className="table">
-              <thead><tr><th>Student</th><th>Roll No</th><th>Course / Year</th><th>Room</th><th>Bed</th><th>Phone</th><th>Guardian</th></tr></thead>
-              <tbody>
-                {STUDENTS.filter((s) => !q || `${s.name} ${s.rollNo} ${s.course}`.toLowerCase().includes(q)).map((s) => (
-                  <tr key={s.id}>
-                    <td><b>{s.name}</b></td>
-                    <td className="mono tiny">{s.rollNo}</td>
-                    <td>{s.course} · Year {s.year}</td>
-                    <td>{s.roomId ? <b>{s.roomId}</b> : <span className="muted">Unassigned</span>}</td>
-                    <td>{s.bedId ?? '—'}</td>
-                    <td className="mono tiny">{s.phone}</td>
-                    <td className="tiny">{s.guardian} ({s.guardianPhone})</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div>
+            <div className="row-between" style={{ marginBottom: 12 }}>
+              <span className="small muted">Active Enrolled Residents ({students.length})</span>
+              <Button size="sm" variant="primary" icon="plus" onClick={() => setStudentModal(true)}>Enroll New Student</Button>
+            </div>
+            <div className="table-wrap">
+              <table className="table">
+                <thead><tr><th>Student</th><th>Roll No</th><th>Course / Year</th><th>Room</th><th>Bed</th><th>Phone</th><th>Guardian</th><th>Fee Dues</th><th>Action</th></tr></thead>
+                <tbody>
+                  {students.filter((s) => !q || `${s.name} ${s.rollNo} ${s.course}`.toLowerCase().includes(q)).map((s) => {
+                    const pending = Math.max(0, (s.feeTotal || 85000) - (s.feePaid || 0))
+                    return (
+                      <tr key={s.id}>
+                        <td><b>{s.name}</b></td>
+                        <td className="mono tiny">{s.rollNo}</td>
+                        <td>{s.course} · Year {s.year}</td>
+                        <td>{s.roomId ? <b>{s.roomId}</b> : <span className="muted">Unassigned</span>}</td>
+                        <td>{s.bedId ?? '—'}</td>
+                        <td className="mono tiny">{s.phone}</td>
+                        <td className="tiny">{s.guardian} ({s.guardianPhone})</td>
+                        <td>
+                          {pending > 0 ? (
+                            <span className="chip-tag danger">{rupee(pending)} due</span>
+                          ) : (
+                            <span className="chip-tag cyan">Cleared</span>
+                          )}
+                        </td>
+                        <td>
+                          <Button size="xs" variant="danger" icon="trash" onClick={() => handleRemoveStudent(s.id, s.name)}>Remove</Button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 
@@ -621,6 +702,125 @@ export function Admin() {
           <div className="row" style={{ justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
             <Button type="button" variant="ghost" onClick={() => setNoticeModal(false)}>Cancel</Button>
             <Button type="submit" variant="primary" icon="bell">Broadcast Notice</Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* --------------------- ENROLL STUDENT MODAL --------------------- */}
+      <Modal
+        open={studentModal}
+        onClose={() => setStudentModal(false)}
+        title="Enroll New Resident Student"
+        subtitle="Add student profile, academic roll number, room allocation and fee details"
+      >
+        <form onSubmit={handleAddStudent} className="col" style={{ gap: 14 }}>
+          <div className="grid g2" style={{ gap: 12 }}>
+            <Field label="Full Name" id="st-name">
+              <input
+                id="st-name" className="input" value={newStudent.name}
+                onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
+                placeholder="e.g. Rahul Sharma" required
+              />
+            </Field>
+            <Field label="Roll Number" id="st-roll">
+              <input
+                id="st-roll" className="input" value={newStudent.rollNo}
+                onChange={(e) => setNewStudent({ ...newStudent, rollNo: e.target.value })}
+                placeholder="e.g. 2026-CSE-108" required
+              />
+            </Field>
+          </div>
+
+          <div className="grid g2" style={{ gap: 12 }}>
+            <Field label="Email Address" id="st-email">
+              <input
+                id="st-email" type="email" className="input" value={newStudent.email}
+                onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
+                placeholder="rahul@roh.edu.in"
+              />
+            </Field>
+            <Field label="Phone Number" id="st-phone">
+              <input
+                id="st-phone" className="input" value={newStudent.phone}
+                onChange={(e) => setNewStudent({ ...newStudent, phone: e.target.value })}
+                placeholder="+91 98765 43210" required
+              />
+            </Field>
+          </div>
+
+          <div className="grid g2" style={{ gap: 12 }}>
+            <Field label="Course & Branch" id="st-course">
+              <input
+                id="st-course" className="input" value={newStudent.course}
+                onChange={(e) => setNewStudent({ ...newStudent, course: e.target.value })}
+                placeholder="B.Tech Computer Science"
+              />
+            </Field>
+            <Field label="Academic Year" id="st-year">
+              <select
+                id="st-year" className="select" value={newStudent.year}
+                onChange={(e) => setNewStudent({ ...newStudent, year: e.target.value })}
+              >
+                <option value="1">Year 1 (Freshman)</option>
+                <option value="2">Year 2 (Sophomore)</option>
+                <option value="3">Year 3 (Junior)</option>
+                <option value="4">Year 4 (Senior)</option>
+              </select>
+            </Field>
+          </div>
+
+          <div className="grid g2" style={{ gap: 12 }}>
+            <Field label="Allocated Room" id="st-room">
+              <input
+                id="st-room" className="input" value={newStudent.roomId}
+                onChange={(e) => setNewStudent({ ...newStudent, roomId: e.target.value })}
+                placeholder="ARV-101"
+              />
+            </Field>
+            <Field label="Bed ID" id="st-bed">
+              <input
+                id="st-bed" className="input" value={newStudent.bedId}
+                onChange={(e) => setNewStudent({ ...newStudent, bedId: e.target.value })}
+                placeholder="ARV-101-B1"
+              />
+            </Field>
+          </div>
+
+          <div className="grid g2" style={{ gap: 12 }}>
+            <Field label="Guardian Name" id="st-gname">
+              <input
+                id="st-gname" className="input" value={newStudent.guardian}
+                onChange={(e) => setNewStudent({ ...newStudent, guardian: e.target.value })}
+                placeholder="Suresh Sharma"
+              />
+            </Field>
+            <Field label="Guardian Phone" id="st-gphone">
+              <input
+                id="st-gphone" className="input" value={newStudent.guardianPhone}
+                onChange={(e) => setNewStudent({ ...newStudent, guardianPhone: e.target.value })}
+                placeholder="+91 98110 55443"
+              />
+            </Field>
+          </div>
+
+          <div className="grid g2" style={{ gap: 12 }}>
+            <Field label="Total Hostel Fee (₹)" id="st-feetotal">
+              <input
+                id="st-feetotal" type="number" className="input" value={newStudent.feeTotal}
+                onChange={(e) => setNewStudent({ ...newStudent, feeTotal: Number(e.target.value) })}
+              />
+            </Field>
+            <Field label="Initial Fee Paid (₹)" id="st-feepaid">
+              <input
+                id="st-feepaid" type="number" className="input" value={newStudent.feePaid}
+                onChange={(e) => setNewStudent({ ...newStudent, feePaid: Number(e.target.value) })}
+              />
+            </Field>
+          </div>
+
+          <div className="row" style={{ justifyContent: 'flex-end', gap: 10, marginTop: 10 }}>
+            <Button type="button" variant="ghost" onClick={() => setStudentModal(false)}>Cancel</Button>
+            <Button type="submit" variant="primary" icon="plus">Enroll Student</Button>
           </div>
         </form>
       </Modal>
