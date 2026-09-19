@@ -681,6 +681,43 @@ export function Dashboard() {
                   <StatCard label="Wastage" value="6.2%" tone="warn" icon="alert" foot="Target below 5%" />
                   <StatCard label="Special requests" value="14" tone="info" icon="clipboard" foot="Jain / no-onion meals" />
                 </div>
+
+                {/* Today's menu */}
+                <div className="card pad-lg">
+                  <div className="card-title" style={{ marginBottom: 16 }}><Icon name="utensils" size={17} /> Today's menu · {todayDayName()}</div>
+                  <div className="grid g2" style={{ gap: 14 }}>
+                    {todayMenu.meals.map((m) => (
+                      <div className="card tight" key={m.key}>
+                        <div className="row" style={{ gap: 12, marginBottom: 10 }}>
+                          <span className="meal-ico" style={{ width: 38, height: 38, fontSize: '1.1rem' }}>{m.icon}</span>
+                          <div className="grow">
+                            <b className="small">{m.name}</b>
+                            <div className="tiny muted">{m.open} – {m.close}</div>
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {m.items.map((item) => (
+                            <span className="chip-tag" key={item}>{item}</span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Serving windows quick view */}
+                <div className="card pad-lg">
+                  <div className="card-title" style={{ marginBottom: 16 }}><Icon name="clock" size={17} /> Serving windows</div>
+                  <div className="grid g4" style={{ gap: 12 }}>
+                    {MESS_TIMINGS.map((t) => (
+                      <div className="card tight" key={t.key} style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '1.6rem', marginBottom: 6 }}>{t.icon}</div>
+                        <b className="small">{t.label}</b>
+                        <div className="tiny muted" style={{ marginTop: 4 }}>{t.open} – {t.close}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </>
             )}
 
@@ -720,6 +757,55 @@ export function Dashboard() {
                   <StatCard label="Seats booked" value={TRANSPORT_ROUTES.reduce((a, r) => a + r.booked, 0)} tone="info" icon="users" foot={`of ${TRANSPORT_ROUTES.reduce((a, r) => a + r.seats, 0)} total`} />
                   <StatCard label="On-time rate" value="92%" tone="ok" icon="trending" foot="Rolling 7-day average" />
                   <StatCard label="Delays flagged" value={TRANSPORT_ROUTES.filter((r) => r.status === 'Delayed').length} tone="warn" icon="alert" foot="Route 4 · traffic diversion" />
+                </div>
+
+                {/* Fleet status */}
+                <div className="card pad-lg">
+                  <div className="card-title" style={{ marginBottom: 16 }}><Icon name="bus" size={17} /> Fleet status</div>
+                  <div className="col" style={{ gap: 12 }}>
+                    {TRANSPORT_ROUTES.map((r) => (
+                      <div className="card tight" key={r.id}>
+                        <div className="row-between" style={{ gap: 12, flexWrap: 'wrap' }}>
+                          <div className="grow">
+                            <b className="small">{r.route}</b>
+                            <div className="tiny muted" style={{ marginTop: 4 }}>
+                              <Icon name="user" size={12} /> {r.driver} · {r.busNo}
+                            </div>
+                          </div>
+                          <div className="row" style={{ gap: 8, flexWrap: 'wrap' }}>
+                            <span className={`chip-tag ${r.status === 'On Time' ? 'ok' : r.status === 'Delayed' ? 'danger' : 'cyan'}`}>{r.status}</span>
+                            <span className="chip-tag">{r.seats - r.booked}/{r.seats} seats</span>
+                            <span className="chip-tag violet">Next: {r.nextAt}</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Driver contacts */}
+                <div className="grid g2" style={{ gap: 14 }}>
+                  <div className="card pad-lg">
+                    <div className="card-title" style={{ marginBottom: 16 }}><Icon name="phone" size={17} /> Driver contacts</div>
+                    <div className="kv">
+                      {TRANSPORT_ROUTES.map((r) => (
+                        <div className="kv-row" key={r.id}>
+                          <span>{r.driver}</span>
+                          <span className="mono tiny">{r.driverPhone}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="card pad-lg">
+                    <div className="card-title" style={{ marginBottom: 16 }}><Icon name="clock" size={17} /> College timings</div>
+                    <div className="kv">
+                      <div className="kv-row"><span>First pickup</span><b>07:30</b></div>
+                      <div className="kv-row"><span>College start</span><b>08:00</b></div>
+                      <div className="kv-row"><span>College end</span><b>16:30</b></div>
+                      <div className="kv-row"><span>Last shuttle</span><b>22:00</b></div>
+                      <div className="kv-row"><span>Curfew</span><b>23:00</b></div>
+                    </div>
+                  </div>
                 </div>
               </>
             )}
