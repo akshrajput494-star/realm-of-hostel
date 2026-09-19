@@ -156,17 +156,13 @@ export function Dashboard() {
           <>
             {section === 'overview' && me && (
               <>
-                <div className="grid g4">
+                <div className="grid g3">
                   <StatCard
                     compact
                     label="Bed allotted"
                     value={`${myRoom?.number ?? '—'} · Bed ${myBed?.label ?? '—'}`}
                     icon="bed"
                     foot={`${floorName(myRoom?.floor ?? 0)} · ${getBuilding(myRoom?.buildingId ?? '')?.name}`}
-                  />
-                  <StatCard
-                    label="Attendance" value={`${me.attendancePct}%`} tone={me.attendancePct > 85 ? 'ok' : 'warn'} icon="calendar"
-                    spark={<Spark values={[78, 82, 85, 88, 86, me.attendancePct]} />}
                   />
                   <StatCard label="Pending fees" value={rupee(pendingFee)} tone={pendingFee > 0 ? 'danger' : 'ok'} icon="wallet" foot={pendingFee > 0 ? 'Due 30 September 2026' : 'All dues cleared'} />
                   <StatCard label="Open complaints" value={myComplaints.filter((c) => c.status !== 'resolved').length} tone="info" icon="clipboard" foot={`${myComplaints.length} lifetime tickets`} />
@@ -685,21 +681,6 @@ export function Dashboard() {
                   <StatCard label="Wastage" value="6.2%" tone="warn" icon="alert" foot="Target below 5%" />
                   <StatCard label="Special requests" value="14" tone="info" icon="clipboard" foot="Jain / no-onion meals" />
                 </div>
-                <div className="grid g2">
-                  <div className="card pad-lg">
-                    <div className="card-title" style={{ marginBottom: 16 }}><Icon name="star" size={17} /> Rating trend (last 7 days)</div>
-                    <LineChart points={[{ label: 'Mon', value: 4.1 }, { label: 'Tue', value: 4.0 }, { label: 'Wed', value: 4.3 }, { label: 'Thu', value: 4.2 }, { label: 'Fri', value: 4.5 }, { label: 'Sat', value: 4.6 }, { label: 'Sun', value: 4.3 }]} color="#e879f9" />
-                  </div>
-                  <div className="card pad-lg">
-                    <div className="card-title" style={{ marginBottom: 16 }}><Icon name="utensils" size={17} /> Footfall by meal</div>
-                    <BarChart horizontal data={[
-                      { label: 'Breakfast', value: 312, color: 'linear-gradient(90deg,#8b5cf6,#22d3ee)' },
-                      { label: 'Lunch', value: 428, color: 'linear-gradient(90deg,#8b5cf6,#22d3ee)' },
-                      { label: 'Snacks', value: 196, color: 'linear-gradient(90deg,#8b5cf6,#22d3ee)' },
-                      { label: 'Dinner', value: 348, color: 'linear-gradient(90deg,#8b5cf6,#22d3ee)' },
-                    ]} />
-                  </div>
-                </div>
               </>
             )}
 
@@ -739,10 +720,6 @@ export function Dashboard() {
                   <StatCard label="Seats booked" value={TRANSPORT_ROUTES.reduce((a, r) => a + r.booked, 0)} tone="info" icon="users" foot={`of ${TRANSPORT_ROUTES.reduce((a, r) => a + r.seats, 0)} total`} />
                   <StatCard label="On-time rate" value="92%" tone="ok" icon="trending" foot="Rolling 7-day average" />
                   <StatCard label="Delays flagged" value={TRANSPORT_ROUTES.filter((r) => r.status === 'Delayed').length} tone="warn" icon="alert" foot="Route 4 · traffic diversion" />
-                </div>
-                <div className="card pad-lg">
-                  <div className="card-title" style={{ marginBottom: 16 }}><Icon name="activity" size={17} /> Daily ridership</div>
-                  <LineChart points={[{ label: 'Mon', value: 210 }, { label: 'Tue', value: 248 }, { label: 'Wed', value: 265 }, { label: 'Thu', value: 232 }, { label: 'Fri', value: 288 }, { label: 'Sat', value: 142 }, { label: 'Sun', value: 96 }]} />
                 </div>
               </>
             )}
