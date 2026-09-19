@@ -117,7 +117,7 @@ let toastSeq = 1
 let appSeq = 100
 
 export function StoreProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<'dark' | 'light'>(() => load<'dark' | 'light'>(KEYS.theme, 'dark'))
+  const [theme, setTheme] = useState<'dark' | 'light'>(() => load<'dark' | 'light'>(KEYS.theme, 'light'))
   const [user, setUser] = useState<AuthUser | null>(() => load<AuthUser | null>(KEYS.user, null))
   const [shortlist, setShortlist] = useState<string[]>(() => load<string[]>(KEYS.shortlist, ['ARV-103', 'NLG-201']))
   const [compare, setCompare] = useState<string[]>(() => load<string[]>(KEYS.compare, []))
