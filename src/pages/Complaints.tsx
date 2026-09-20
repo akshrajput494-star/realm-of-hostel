@@ -112,6 +112,7 @@ export function Complaints() {
 
       <div className="split">
         {/* ------------------------- Submit form ------------------------- */}
+        {user?.role !== 'admin' && user?.role !== 'warden' && (
         <form className="card" onSubmit={onSubmit} noValidate aria-labelledby="raise-complaint">
           <div className="card-title" style={{ marginBottom: 14 }}><Icon name="plus" size={17} /> <span id="raise-complaint">Raise a complaint</span></div>
 
@@ -185,6 +186,7 @@ export function Complaints() {
             </p>
           </div>
         </form>
+        )}
 
         {/* --------------------------- History --------------------------- */}
         <div id="complaint-history">
