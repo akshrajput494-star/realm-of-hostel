@@ -110,7 +110,7 @@ export function Complaints() {
         <StatCard label="Resolved" value={counts.resolved} tone="ok" icon="check" foot="Closed by the warden office" />
       </div>
 
-      <div className="split">
+      <div className={user?.role === 'admin' || user?.role === 'warden' ? '' : 'split'}>
         {/* ------------------------- Submit form ------------------------- */}
         {user?.role !== 'admin' && user?.role !== 'warden' && (
         <form className="card" onSubmit={onSubmit} noValidate aria-labelledby="raise-complaint">
