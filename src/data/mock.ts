@@ -375,76 +375,74 @@ export const roleLabel: Record<Role, string> = {
    Mess
    ========================================================================= */
 export const MESS_TIMINGS = [
-  { key: 'breakfast', label: 'Breakfast', open: '07:00', close: '09:30', icon: '🍳' },
+  { key: 'breakfast', label: 'Breakfast', open: '07:30', close: '09:30', icon: '🍳' },
   { key: 'lunch', label: 'Lunch', open: '12:30', close: '14:30', icon: '🍛' },
   { key: 'snacks', label: 'Snacks & Tea', open: '17:00', close: '18:00', icon: '☕' },
-  { key: 'dinner', label: 'Dinner', open: '19:30', close: '22:00', icon: '🍽️' },
+  { key: 'dinner', label: 'Dinner', open: '19:30', close: '21:30', icon: '🍽️' },
 ] as const
 
 export const MESS_WEEK: MessDay[] = [
   {
     day: 'Monday', short: 'Mon',
     meals: [
-      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:00', close: '09:30', items: ['Poha with sev', 'Boiled eggs', 'Banana', 'Masala chai'] },
-      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Rajma masala', 'Steamed rice', 'Tawa roti', 'Cucumber salad'] },
-      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Veg samosa', 'Mint chutney', 'Filter coffee'] },
-      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '22:00', items: ['Paneer butter masala', 'Jeera rice', 'Roti', 'Gulab jamun'] },
+      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:30', close: '09:30', items: ['Aloo puri', 'Sabji', 'Tea'] },
+      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Arhar dal', 'Parwal do pyaza', 'Roti', 'Rice', 'Pickle', 'Salad'] },
+      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Samosa', 'Rasna'] },
+      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '21:30', items: ['Chana dal', 'Lauki kofta', 'Rice', 'Roti', 'Salad', 'Pickle'] },
     ],
   },
   {
     day: 'Tuesday', short: 'Tue',
     meals: [
-      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:00', close: '09:30', items: ['Idli & sambar', 'Coconut chutney', 'Cornflakes', 'Milk / Tea'] },
-      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Chole', 'Bhature (limited)', 'Rice', 'Onion salad'] },
-      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Bread pakoda', 'Green chutney', 'Ginger tea'] },
-      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '22:00', items: ['Mix veg curry', 'Dal fry', 'Roti', 'Fruit custard'] },
+      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:30', close: '09:30', items: ['Sambar', 'Utpam', 'Chutney', 'Tea'] },
+      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Rajma', 'Aloo matar', 'Rice', 'Roti', 'Pickle', 'Salad'] },
+      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Poha / Macaroni', 'Tea'] },
+      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '21:30', items: ['Puri', 'Chola', 'Kaddu', 'Khatti methi', 'Kheer', 'Rice', 'Roti', 'Pickle', 'Salad'] },
     ],
   },
   {
     day: 'Wednesday', short: 'Wed',
     meals: [
-      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:00', close: '09:30', items: ['Aloo paratha', 'Curd', 'Pickle', 'Tea / Coffee'] },
-      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Kadhi pakora', 'Rice', 'Roti', 'Papad'] },
-      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Pav bhaji', 'Lemon tea'] },
-      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '22:00', items: ['Chicken curry / Paneer', 'Rice', 'Roti', 'Salad'] },
+      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:30', close: '09:30', items: ['Aloo paratha', 'Dahi', 'Tea'] },
+      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Kadai paneer', 'Kali masoor dal', 'Rice', 'Roti', 'Pickle', 'Salad'] },
+      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Aloo bread sandwich', 'Rasna'] },
+      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '21:30', items: ['Egg curry / Malai kofta', 'Rice', 'Roti', 'Salad'] },
     ],
-    special: 'Wednesday Special: Chole Bhature at lunch counter',
   },
   {
     day: 'Thursday', short: 'Thu',
     meals: [
-      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:00', close: '09:30', items: ['Upma', 'Boiled sprouts', 'Banana', 'Masala chai'] },
-      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Sambar rice', 'Beans poriyal', 'Roti', 'Buttermilk'] },
-      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Veg cutlet', 'Ketchup', 'Masala tea'] },
-      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '22:00', items: ['Aloo gobi', 'Dal tadka', 'Roti', 'Ice cream'] },
+      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:30', close: '09:30', items: ['Bread butter', 'Jam', 'Banana', 'Tea'] },
+      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Kadhi pakoda', 'Mattar aloo / Soyabean', 'Rice', 'Roti', 'Salad'] },
+      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Chow mein', 'Tea'] },
+      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '21:30', items: ['Dal makhani', 'Pata gobhi', 'Aloo matar', 'Sabji', 'Gulab jamun'] },
     ],
   },
   {
     day: 'Friday', short: 'Fri',
     meals: [
-      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:00', close: '09:30', items: ['Masala dosa', 'Chutney & sambar', 'Milk', 'Tea'] },
-      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Veg biryani', 'Raita', 'Roti', 'Boondi salad'] },
-      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Maggi counter', 'Cold coffee'] },
-      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '22:00', items: ['Egg curry / Veg kofta', 'Rice', 'Roti', 'Kheer'] },
+      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:30', close: '09:30', items: ['Pav bhaji / Chola kulcha', 'Tea'] },
+      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Mix vegetable', 'Saag / Punjabi dal', 'Tadka', 'Rice', 'Roti', 'Pickle', 'Salad'] },
+      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Aloo tikki burger / Veg burger', 'Tea'] },
+      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '21:30', items: ['Chilli paneer', 'Veg manchurian', 'Fried rice', 'Roti', 'Salad'] },
     ],
   },
   {
     day: 'Saturday', short: 'Sat',
     meals: [
-      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:30', close: '10:00', items: ['Puri bhaji', 'Sprouts', 'Tea / Coffee'] },
-      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Special thali', 'Paneer tikka masala', 'Pulao', 'Roti', 'Rasmalai'] },
-      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Vada pav', 'Fried chilli', 'Chai'] },
-      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '22:00', items: ['Veg hakka noodles', 'Manchurian', 'Fried rice', 'Fruit bowl'] },
+      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '07:30', close: '09:30', items: ['Kala chana', 'Plain paratha', 'Tea'] },
+      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Vegetable biryani', 'Chutney', 'Papad', 'Salad', 'Raita'] },
+      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Dahi bhalla', 'Rasna'] },
+      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '21:30', items: ['Bhindi do pyaza', 'Chana dal', 'Roti', 'Custard / Halwa', 'Salad', 'Pickle'] },
     ],
-    special: 'Weekend Special — Saturday thali with live counter',
   },
   {
     day: 'Sunday', short: 'Sun',
     meals: [
-      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '08:00', close: '10:30', items: ['Chole kulche', 'Lassi', 'Fruit bowl', 'Tea'] },
-      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '13:00', close: '15:00', items: ['Mutton / Soya curry', 'Jeera rice', 'Tandoori roti', 'Salad'] },
-      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Pizza slices', 'Lemonade'] },
-      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '22:00', items: ['Veg fried rice', 'Dal makhani', 'Roti', 'Ice cream'] },
+      { key: 'breakfast', name: 'Breakfast', icon: '🍳', open: '08:00', close: '10:00', items: ['Paneer paratha', 'Tea'] },
+      { key: 'lunch', name: 'Lunch', icon: '🍛', open: '12:30', close: '14:30', items: ['Chole bhature', 'Rice', 'Raita', 'Pickles'] },
+      { key: 'snacks', name: 'Snacks & Tea', icon: '☕', open: '17:00', close: '18:00', items: ['Aloo patice', 'Tea'] },
+      { key: 'dinner', name: 'Dinner', icon: '🍽️', open: '19:30', close: '21:30', items: ['Green curry', 'Paneer do pyaza', 'Rice', 'Roti', 'Salad'] },
     ],
   },
 ]
