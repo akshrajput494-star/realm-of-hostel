@@ -704,20 +704,6 @@ export function Dashboard() {
                     ))}
                   </div>
                 </div>
-
-                {/* Serving windows quick view */}
-                <div className="card pad-lg">
-                  <div className="card-title" style={{ marginBottom: 16 }}><Icon name="clock" size={17} /> Serving windows</div>
-                  <div className="grid g4" style={{ gap: 12 }}>
-                    {MESS_TIMINGS.map((t) => (
-                      <div className="card tight" key={t.key} style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.6rem', marginBottom: 6 }}>{t.icon}</div>
-                        <b className="small">{t.label}</b>
-                        <div className="tiny muted" style={{ marginTop: 4 }}>{t.open} – {t.close}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </>
             )}
 
